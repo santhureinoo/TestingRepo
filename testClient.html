@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<head>
+	<script src="jquery.js"></script>
+	<script src="Angular.js"></script>
+	<script src="d3.js"></script>
+	<script src="https://d3js.org/d3.v3.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-route.js"></script>
+	<style>
+		rect {
+  fill: steelblue;
+}
+
+.chart text {
+  fill: white;
+  font: 10px sans-serif;
+  text-anchor: end;
+}
+
+	</style>
+</head>
+<body>
+	<div ng-app='mainApp' ng-controller='studentController'>
+			<p ng-bind='countryList'></p>
+			{{time|date:'medium'}}
+			<directive-item name='name'></directive-item>
+			{{name}}
+			<a href="#!banana">Banana</a>
+			<div ng-view></div>
+			<table border='0'>
+				<tr ng-repeat='country in countryList'>
+					<td> <watching-time is-current="1">{{testingWrapping}}</watching-time></td>
+				</tr>
+			</table>
+			<test-component color='red'></test-component>		
+	</div>
+	<div class='d3Dummy' id="d3Dummy" ></div>
+<!--	<svg class="chart" width="420" height="120">
+  <g transform="translate(0,0)">
+    <rect width="40" height="19"></rect>
+    <text x="37" y="9.5" dy=".35em">4</text>
+  </g>
+  <g transform="translate(0,20)">
+    <rect width="80" height="19"></rect>
+    <text x="77" y="9.5" dy=".35em">8</text>
+  </g>
+  <g transform="translate(0,40)">
+    <rect width="150" height="19"></rect>
+    <text x="147" y="9.5" dy=".35em">15</text>
+  </g>
+  <g transform="translate(0,60)">
+    <rect width="160" height="19"></rect>
+    <text x="157" y="9.5" dy=".35em">16</text>
+  </g>
+  <g transform="translate(0,80)">
+    <rect width="230" height="19"></rect>
+    <text x="227" y="9.5" dy=".35em">23</text>
+  </g>
+  <g transform="translate(0,100)">
+    <rect width="420" height="19"></rect>
+    <text x="417" y="9.5" dy=".35em">42</text>
+  </g>
+</svg>-->
+	<input type='button' id='randomBut' value='ChangePosition'>
+</body>
+<script>
+
+	/*$.ajax({
+        url:"http://localhost:8081/getD3Data",
+        type:"GET",
+        success:function(data){
+            alert("SUC")
+           data=JSON.parse(data)
+            //data=JSON.parse(JSON.stringify(data).replace('"',"'"))
+            //$("#d3Dummy").text(data[0].age)
+            var svg=d3.select("body").append("svg").attr('width','946px').attr('height','477px').attr('color','red')
+            //svg.selectAll('g').attr('transform','translate('++')')
+			//svg.selectAll('rect').data(data).enter().append('rect')
+            
+        }
+        
+    })*/
+
+    class Vehicle
+    {
+    	//name='default'
+    	constructor(n){
+    		this.name=n;
+    	}
+    	get getName()
+    	{
+    		return this.name;
+    	}
+    }
+
+    const promiseTesting=time=>new Promise(res=>setTimeout(res("SucCESS"),time));
+   	const subPromise=suc=>new Promise(res=>res("Testing Here"+suc))
+    promiseTesting(20000).then(subPromise).then(subPromise).then(fullfilled=>console.log(new Vehicle(fullfilled).getName));
+
+    var w=600;
+    var h=250;
+    var dataset = [ 
+	{ key: 0, value: 5 },
+	{ key: 1, value: 10 },
+	{ key: 2, value: 13 },
+	{ key: 3, value: 19 },
+	{ key: 4, value: 21 },
+	{ key: 5, value: 25 },
+	{ key: 6, value: 22 },
+	{ key: 7, value: 18 },
+	{ key: 8, value: 15 },
+	{ key: 9, value: 13 },
+	{ key: 10, value: 11 },
+	{ key: 11, value: 12 },
+	{ key: 12, value: 15 },
+	{ key: 13, value: 20 },
+	{ key: 14, value: 18 },
+	{ key: 15, value: 17 },
+	{ key: 16, value: 16 },
+	{ key: 17, value: 18 },
+	{ key: 18, value: 23 },
+	{ key: 19, value: 25 } ];
+
+	var xScale=d3.scale.ordinal().domain(d3.range(dataset.length)).rangeRoundBands([0,w],0.1);
+	var yScale=d3.scale.linear().domain([0,d3.max(dataset,function(d){return d.value; })]).range([0,h]);
+
+	var xScale1=d3.scale.ordinal().domain(d3.range(dataset.length)).rangeRoundBands([0,w],0.1);
+	var yScale1=d3.scale.linear().domain([0,d3.max(dataset,function(d){return d.value; })]).range([0,h]);
+	var svg=d3.select("body").append("svg").attr('width',w).attr('height',h).attr('class','sampleChart');
+	svg.selectAll("rect")
+   .data(dataset)
+   .enter()
+   .append("rect")
+   .attr("x", function(d, i) {
+		return xScale(i);
+   })
+   .attr("y", function(d,i) {
+		return h - yScale(d.value);
+   })
+   .attr("width", xScale.rangeBand())
+   .attr("height", function(d) {
+		return yScale(d.value);
+   })
+
+   var yAxis=d3.svg.axis()
+   .orient('left')
+   .scale(yScale1);
+
+   var xAxis=d3.svg.axis()
+   .orient('bottom')
+   .scale(xScale1);
+
+   svg.append('g').attr('transform','translate(20,10)').call(yAxis);
+   svg.append('g').attr('transform','translate(0,220)').call(xAxis);
+
+   /*svg.selectAll('text')
+   .data(dataset).
+*/
+	var asc=true;
+	d3.select('#randomBut').on('click',function(){
+		if(asc)
+		{
+		svg.selectAll('rect')
+		.sort(function(x,y){ return d3.ascending(x.value,y.value)})
+		.transition()
+		
+		.duration(1000)
+		.attr('x',function(d,i){return xScale(i)})
+
+
+		}
+		else
+		{
+		svg.selectAll('rect')
+		.sort(function(x,y){ return d3.descending(x.value,y.value)})
+		.transition()
+		.delay(function(d,i){
+			return i*50;
+		})
+		.duration(1000)
+		.attr('x',function(d,i){return xScale(i)})
+
+		}
+		asc=!asc;
+	})
+	//svg.selectAll('g').data([1,2,3,4,5]).enter().append().attr('width','200px').attr('height','300px')
+	var mainApp=angular.module("mainApp",['ngRoute']);
+	mainApp.config(function($routeProvider){
+		$routeProvider.when("/banana",{template:"<h1>Banana</h1>"})
+
+	})
+
+
+
+	mainApp.factory('testFactory',function(){
+		return {summary:function(num){
+			return num+1
+		}}
+	})
+
+	mainApp.service('testService',function(testFactory){
+		sum=function(num){
+			return testFactory(num)
+		}
+
+	})
+	mainApp.controller('studentController',function($scope,testService,testFactory,$interval){
+		$.ajax({
+			url:"http://localhost:8081/listUsers",
+			type:"GET",
+			data:{
+				"employees":{"name":"kyaw kyaw","address":"MDY"}
+			},
+			success:function(data){
+				alert(data);
+				//$scope.countryList=JSON.parse('[{"locale":"en-US","name":"United States"},{"locale":"en-GB","name":"United Kingdom"},{"locale":"en-FR","name":"France"}]');
+				//scope=JSON.parse('[{"locale":"en-US","name":"United States"},{"locale":"en-GB","name":"United Kingdom"},{"locale":"en-FR","name":"France"}]');
+				//alert(scope);
+			}
+
+		});
+		$scope.time=new Date();
+		/*$scope.$watch=('time',function(){
+			alert('SUC');
+		});*/
+		$interval(function(){
+			$scope.time=Date.now();
+		},1000,3);
+
+		$scope.name='Kyaw'
+		
+		$scope.countryList=[{locale:'en-US',name:'United States'}, {locale:'en-GB',name:'United Kingdom'}, {locale:'en-FR',name:'France'}];
+		//alert($scope.countryList);
+		//		alert(JSON.stringify($scope.userList));
+		//$scope.item="abc";
+		$scope.countryList=JSON.parse('[{"locale":"en-US","name":"United States"},{"locale":"en-GB","name":"United Kingdom"},{"locale":"en-FR","name":"France"}]');
+		
+		$scope.factoryTest=testFactory.summary(1)
+
+
+	}).directive('watchingTime',function(){
+		//alert("SUC");
+		return {
+			template:"Country Name:{{country.name|uppercase}} And Country Locale: {{country.locale}}, Oh it is {{isCurrent}} And Service is {{factoryTest}} <button ng-disabled='isCurrent'>Disabled button</button><br><b ng-transclude></b>{{countryName}}",
+			transclude: true,
+			link:function(scope,element,attrs){
+				if(attrs.isCurrent==0)
+				scope.isCurrent=false;
+				else
+				scope.isCurrent=true;
+			//	scope.countryName='=name'
+				//scope.testingWrapping='Mg'
+			}
+		}
+	}).directive('directiveItem',function(){
+		return{
+				template:'{{nameInner}}',
+				scope:{
+					nameInner:'=name'
+				},
+				link:function(scope,elem,attirs){
+					scope.nameInner='ABCDEFG'
+				}
+		}
+		
+	})
+	
+	
+
+	mainApp.component('testComponent',{
+		template:'<ul><li ng-repeat="item in $ctrl.items" style="color:{{$ctrl.color}}"><h5>{{item.title}}</h5><hr/><span>{{item.data}}</span></li></ul>',
+		controller:function() {
+			this.items=[{'title':'Item A','data':'Data A'},{'title':'Item B','data':'Data B'}];
+	},
+		bindings:{ color:'@'}
+
+	})
+</script>
